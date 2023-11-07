@@ -26,9 +26,10 @@ const ImageClassification = () => {
 
     const formData = new FormData();
     formData.append("file", file);
+    // const response = await fetch("http://localhost:8000/api/predict", {
 
     try {
-      const response = await fetch("http://localhost:8000/api/predict", {
+      const response = await fetch("https://backend-kappa-liard.vercel.app/api/predict", {
         method: "POST",
         body: formData,
       });
