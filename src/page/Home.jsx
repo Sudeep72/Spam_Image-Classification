@@ -4,8 +4,10 @@ import Bg from "../assets/1.jpg";
 const ImageClassification = () => {
   const [selectedImage, setSelectedImage] = useState(null);
   const [classificationResult, setClassificationResult] = useState("");
+  const [setClassificationProbability] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showUploadMessage, setShowUploadMessage] = useState(false);
+  // const [classificationProbability, setClassificationProbability] = useState("");
 
   const handleImageUpload = async () => {
     const fileInput = document.getElementById("file-input");
@@ -19,26 +21,31 @@ const ImageClassification = () => {
 
     setSelectedImage(URL.createObjectURL(file));
     setClassificationResult("");
+    setClassificationProbability("");
     setIsLoading(true);
 
     const formData = new FormData();
-    formData.append("image", file);
+    formData.append("file", file);
 
     try {
-      const response = await fetch("http://your-backend-api-url/classify", {
+      const response = await fetch("http://localhost:8000/api/predict", {
         method: "POST",
         body: formData,
       });
 
       if (response.ok) {
         const data = await response.json();
+        console.log("Response data:", data);
         setClassificationResult(data.result);
+        setClassificationProbability(data.probability);
       } else {
         setClassificationResult("Error occurred during classification");
+        setClassificationProbability("");
       }
     } catch (error) {
       console.error("Error:", error);
       setClassificationResult("Error occurred during classification");
+      setClassificationProbability("");
     } finally {
       setIsLoading(false);
     }
@@ -49,6 +56,7 @@ const ImageClassification = () => {
     fileInput.value = null;
     setSelectedImage(null);
     setClassificationResult("");
+    setClassificationProbability("");
   };
 
   return (
@@ -102,7 +110,7 @@ const ImageClassification = () => {
                 <img
                   src={selectedImage}
                   alt="Uploaded"
-                  className="w-48 h-auto rounded-lg mb-4"
+                  className="w-60 h-auto rounded-lg mb-4"
                 />
                 {classificationResult && (
                   <p className="font-bold text-2xl">
@@ -112,13 +120,25 @@ const ImageClassification = () => {
                         classificationResult ===
                         "Error occurred during classification"
                           ? "text-red-700"
-                          : "text-green-500"
+                          : classificationResult === "Spam"
+                          ? "text-error"
+                          : "text-success"
                       }
                     >
                       {classificationResult}
                     </span>
                   </p>
                 )}
+                {/* {classificationProbability && (
+                  <p className="font-bold text-2xl">
+                    Probability: {" "}
+                    <span
+                      className="text-blue-700"
+                    >
+                      {classificationProbability}
+                    </span>
+                  </p>
+                )} */}
               </div>
             )}
             {showUploadMessage && (
